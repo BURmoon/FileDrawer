@@ -1,0 +1,106 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<ui version="4.0">
+ <class>MainWindow</class>
+ <widget class="QMainWindow" name="MainWindow">
+  <property name="geometry">
+   <rect>
+    <x>0</x>
+    <y>0</y>
+    <width>373</width>
+    <height>480</height>
+   </rect>
+  </property>
+  <property name="windowTitle">
+   <string>MainWindow</string>
+  </property>
+  <widget class="QWidget" name="centralwidget">
+   <layout class="QVBoxLayout" name="verticalLayout">
+    <item>
+     <widget class="QStackedWidget" name="stackedWidget">
+      <property name="currentIndex">
+       <number>0</number>
+      </property>
+      <widget class="QWidget" name="page">
+       <layout class="QVBoxLayout" name="verticalLayout_2">
+        <property name="leftMargin">
+         <number>0</number>
+        </property>
+        <property name="topMargin">
+         <number>0</number>
+        </property>
+        <property name="rightMargin">
+         <number>0</number>
+        </property>
+        <property name="bottomMargin">
+         <number>0</number>
+        </property>
+        <item>
+         <widget class="QListWidget" name="listWidget"/>
+        </item>
+       </layout>
+      </widget>
+      <widget class="QWidget" name="page_2"/>
+     </widget>
+    </item>
+    <item>
+     <widget class="QTextEdit" name="textEdit"/>
+    </item>
+   </layout>
+  </widget>
+  <widget class="QMenuBar" name="menubar">
+   <property name="geometry">
+    <rect>
+     <x>0</x>
+     <y>0</y>
+     <width>373</width>
+     <height>23</height>
+    </rect>
+   </property>
+   <widget class="QMenu" name="file">
+    <property name="title">
+     <string>文件</string>
+    </property>
+    <addaction name="MyFile"/>
+    <addaction name="DownList"/>
+    <addaction name="UpList"/>
+   </widget>
+   <widget class="QMenu" name="user">
+    <property name="title">
+     <string>用户</string>
+    </property>
+    <addaction name="SwitchUser"/>
+   </widget>
+   <widget class="QMenu" name="tool">
+    <property name="title">
+     <string>工具</string>
+    </property>
+   </widget>
+   <addaction name="file"/>
+   <addaction name="user"/>
+   <addaction name="tool"/>
+  </widget>
+  <widget class="QStatusBar" name="statusbar"/>
+  <action name="MyFile">
+   <property name="text">
+    <string>我的文件</string>
+   </property>
+  </action>
+  <action name="DownList">
+   <property name="text">
+    <string>下载列表</string>
+   </property>
+  </action>
+  <action name="UpList">
+   <property name="text">
+    <string>上传列表</string>
+   </property>
+  </action>
+  <action name="SwitchUser">
+   <property name="text">
+    <string>切换用户</string>
+   </property>
+  </action>
+ </widget>
+ <resources/>
+ <connections/>
+</ui>
