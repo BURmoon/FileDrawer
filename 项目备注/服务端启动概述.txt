@@ -1,0 +1,10 @@
+# 执行 MAKEFILE 文件，生成可执行的CGI程序
+	login/register/upload/md5/myfiles/dealfile
+
+# 修改配置文件 cfg.json 中的相关数据
+	mysal/redis数据库配置，fastdfs配置
+
+# 修改配置文件 nginx.conf 中的相关数据，更新 fastDFS Storage的数据存储目录
+
+# 执行脚本文件 start.sh
+	nginx的配置文件操作，启动fastdfs及cgi程序，启动nginx，启动redis

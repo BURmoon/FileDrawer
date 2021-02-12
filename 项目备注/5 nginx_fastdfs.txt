@@ -1,0 +1,34 @@
+Nginx和fastDFS的整合
+	在fastDFS存储节点对应的主机上安装Nginx,作为web服务器,安装的时候需要一并将插件装上
+	插件：fastdfs-nginx-module_v1.16.tar.gz
+	安装：
+		进入nginx的源码安装目录
+		./configure --add-module=fastdfs插件的源码目录/src
+		make
+		sudo make install
+======================================================================================
+make过程中的错误
+问题	fatal error: fdfs_define.h: No such file or directory
+解决	查找fdfs_define.h所在路径
+	修改nginx源码目录中的objs/Makefile，在ALL_INCS添加路径
+问题	fatal error: common_define.h: No such file or directory
+解决	查找common_define.h所在路径
+	修改nginx源码目录中的objs/Makefile，在ALL_INCS添加路径
+安装完成后启动Nginx, 发现没有worker进程
+问题	查看nginx的logs日志发现ERROR - ...file /etc/fdfs/mod_fastdfs.conf not exist
+解决	在fastDFS插件目录中找mod_fastdfs.conf，拷贝到/etc/fdfs
+	需要修改mod_fdfs.conf文件, 参数当前存储节点的storage.conf进行修改
+重写启动Nginx, 还是没有worker进程
+问题	查看nginx的logs日志发现ERROR - ...include file "http.conf" not exists, line: "#include http.conf"
+解决	从fastDFS源码安装目录找/conf/http.conf，拷贝到/etc/fdfs
+问题	查看nginx的logs日志发现ERROR - ...file /etc/fdfs/mime.types not exist
+解决	从nginx的源码安装包中找/conf/mime.types，拷贝到/etc/fdfs
+通过浏览器请求服务器下载文件: 404 Not Found
+问题	查看nginx的logs日志发现ERROR - open()"..group1/M00/00/00/wKj3h1vJSOqAM6RHAAvqH_kipG8229.jpg"failed
+解决	给服务器指定一个正确的位置
+	location /group1/M00/ { 
+		root /home/robin/fastdfs/storage/data;	--告诉服务器资源的位置 
+		ngx_fastdfs_module; 
+	}
+======================================================================================
+	

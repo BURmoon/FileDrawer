@@ -1,0 +1,80 @@
+概述
+	Nginx作用
+		web服务器	--解析http协议
+		反向代理服务器
+		邮件服务器	--解析邮件相关的协议: pop3/smtp/imap
+	Nginx的优势
+		更快,高峰期(数以万计的并发时)nginx可以比其它web服务器更快的响应请求
+		高扩展,低耦合设计的模块组成,丰富的第三方模块支持
+		高可靠,经过大批网站检验www.sina.com.cn/www.xunlei.com/www.163.com
+			每个worker进程相对独立, 出错之后可以快速开启新的worker
+		低内存消耗,一般情况下,10000个非活跃的HTTP Keep-Alive连接在nginx中仅消耗 2.5M内存
+		单机支持10万以上的并发连接
+		热部署,master和worker的分离设计,可实现7x24小时不间断服务的前提下升级nginx可执行文件
+		最自由的BSD许可协议,BSD许可协议允许用户免费使用nginx, 修改nginx源码,然后再发布
+=======================================================================
+正向代理
+	正向代理是位于客户端和原始服务器之间的服务器
+	正向代理的典型用途就是为在防火墙内的局域网客户端提供访问Internet的途径
+	正向代理服务器是为用户服务的
+反向代理
+	反向代理是位于Internet和原始服务器之间的服务器
+	客户端所发送的请求都是直接发送给反向代理服务器，然后由反向代理服务器统一调配
+=======================================================================
+Nginx相关依赖
+	OpenSSL	--密码库，使用https进行通信的时候使用
+	ZLib	--数据压缩
+	PCRE	--解析正则表达式
+Nginx安装
+	nginx工作时候需要依赖三个库
+	三个参数=这三个库对应的源码安装目录
+	根据自己的库安装包的位置进行指定
+	./configure --with-openssl=../openssl-1.0.1t --with-pcre=../pcre-8.40 --with- zlib=../zlib-1.2.11 
+	make 
+	make install
+Nginx启动
+	Nginx可执行程序的路径：/usr/local/nginx/sbin/nginx
+	/usr/local/nginx/sbin/nginx创建软连接, 放到PATH对应的路径中
+		ln -s /usr/local/nginx/sbin/nginx /usr/bin/nginx
+	启动Nginx
+		sudo nginx
+	关闭Nginx
+		sudo nginx -s stop	马上关闭
+		sudo nginx -s quit	等nginx作为当前操作之后关闭
+	重新加载Nginx
+		sudo nginx -s reload
+=======================================================================
+Nginx配置
+	Nginx配置文件的位置:
+		/usr/local/nginx/conf/nginx.conf
+	Nginx配置文件的组织格式
+		http模块	--http相关的通信设置
+			server模块	--每个server对应的是一台web服务器
+				location模块	--处理的是客户端的请求
+		mail模块	--处理邮件相关的动作
+	反向代理:
+		server{ 
+			listen 80;		--客户端访问反向代理服务器, 代理服务器监听的端口 
+			server_name ubuntu.com;	--客户端访问反向代理服务器, 需要一个域名 
+			location / {  
+				proxy_pass http://test.com;	--反向代理服务器转发指令, http:// 固定
+			} 
+		}
+		upstream test.com { 	--添加一个代理模块 
+			server 192.168.247.135:80; 
+		}
+	负载均衡
+		upstream linux.com{ 
+			server 192.168.247.135:80 weight=1; 
+			server 192.168.26.250:80 weight=3; 
+		}
+=======================================================================
+处理客户端的请求
+	客户端(浏览器)请求: 
+		http://127.0.0.1:80/login.html
+	处理方式：
+		去掉协议: http
+		去掉IP/域名+端口: 192.168.10.100:80
+		最后如果是文件名, 去掉该名字: login.html
+		剩下d 服务器要处理的location指令:/
+=======================================================================

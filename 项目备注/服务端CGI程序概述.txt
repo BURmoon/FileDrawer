@@ -1,0 +1,109 @@
+ * 登录请求
+   url：http://%1:%2/login
+   { user:xxx , pwd:xxx }
+   应答
+   { code:xxx , token:xxx }
+服务端处理
+	解析登录请求 -> 判断登陆情况，连接mysql数据库，查找对应用户信息
+	-> 生成token字符串，保存在redis数据库
+	-> 回发应答信息 
+	-> 成功 { code:000 , token:xxx }
+	-> 失败 { code:010 , token:fail }
+-------------------------------------------------------------------------------------------------
+ * 注册请求
+   url：http://%1:%2/reg
+   { userName:xxx , firstPwd:xxx }
+   应答
+   { code:xxx }
+服务端处理
+	解析注册请求 -> 判断注册情况，连接mysql数据库，查找用户是否存在
+	-> 若用户存在 -> 回发应答信息 -> { code:011 }
+	-> 若用户不存在，将注册信息放入数据库 -> 回发应答信息
+	-> 成功 { code:001 }
+	-> 失败 { code:012 }
+-------------------------------------------------------------------------------------------------
+ * 请求用户文件个数
+   url：http://%1:%2/myfiles?cmd=count
+   { user:xxx , token:xxx }
+   应答
+   { token:xxx , num:xxx }
+服务端处理
+	解析客户端请求信息 -> 验证token，连接redis数据库，查找user对应的value
+	-> 获取用户文件个数，连接mysql数据库
+	-> 回发应答信息
+	-> 成功 { code:002 , num:xxx }
+	-> 失败 { code:013 , num:xxx }
+	-> token验证失败 { code:111 }
+-------------------------------------------------------------------------------------------------
+ * 请求文件信息
+   url：http://%1:%2/myfiles?cmd=normal
+   { user:xxx , token:xxx , start:xxx , count:xxx }
+   应答
+   { files:[
+    {user:xxx , md5:xxx , time:xxx , fileName:xxx , pv:xxx , url:xxx , size:xxx , type:xxx },
+    {} ] }
+服务端处理
+	解析客户端请求信息 -> 验证token，连接redis数据库，查找user对应的value
+	-> 获取用户文件列表，连接mysql数据库，user/md5/time/filename/pv/url/size/type
+	-> 回发应答信息
+	-> 成功 { files:[ {...}，{...}，...] }
+	-> 失败 { code:014 }
+	-> token验证失败 { code:111 }
+-------------------------------------------------------------------------------------------------
+ * 秒传请求
+   url：http://%1:%2/md5
+   { user:xxx , token:xxx , md5:xxx , fileName:xxx }
+   应答
+   { code:xxx }
+服务端处理
+	解析客户端请求信息 -> 验证token，连接redis数据库，查找user对应的value
+	-> 秒传处理，连接mysql数据库，查找秒传文件的md5
+	-> 有该文件，则其文件计数器+1 -> 回发应答信息 -> 已存在 { code:015 }
+	-> 若没有，则回发应答信息
+	-> 成功 { code:003 }
+	-> 失败 { code:016 }
+	-> token验证失败 { code:111 }
+-------------------------------------------------------------------------------------------------
+ * 上传请求
+   url：http://%1:%2/upload
+   通过 QHttpPart/QHttpMultiPart 上传文件
+   应答
+   { code:xxx }
+服务端处理
+	解析客户端上传的post数据 -> 提取文件相关信息
+	-> 开辟存放文件的内存，将文件内容写入
+	-> 将已写入的文件上传到 FastDFS，并得到文件的file_id ->删除本地临时存放的文件
+	-> 获取文件的 url 地址
+	-> 将该文件的 FastDFS 相关信息存入mysql中 -> 回发应答信息
+	-> 成功 { code:004 }
+	-> 失败 { code:017 }
+-------------------------------------------------------------------------------------------------
+ * 下载文件标志处理
+   url：http://%1:%2/dealfile?cmd=pv
+   { user:xxx , token:xxx , md5:xxx , fileName:xxx }
+   应答
+   { code:xxx }
+服务端处理
+	连接mysql数据库 -> 查询并更新文件的pv字段 -> 回发应答信息
+	-> 成功 { code:005 }
+	-> 失败 { code:018 }
+	-> token验证失败 { code:111 }
+-------------------------------------------------------------------------------------------------
+ * 删除文件请求
+   url：http://%1:%2/dealfile?cmd=del
+   { user:xxx , token:xxx , md5:xxx , fileName:xxx }
+   应答
+   { code:xxx }
+服务端处理
+	连接mysql数据库 -> 查询并删除相关记录 -> 回发应答信息
+	-> 成功 { code:006 }
+	-> 失败 { code:019 }
+	-> token验证失败 { code:111 }
+-------------------------------------------------------------------------------------------------
+
+-------------------------------------------------------------------------------------------------
+数据库表
+	user表：		name，password
+	file_info表：		md5，file_id，url，size，type，count
+	user_file_count表：	user，count
+	user_file_list表：	user，md5，createtime，filename，(shared_status)，pv

@@ -1,0 +1,98 @@
+Nginx作为web服务器处理动态请求
+	使用get方式提交数据得到的url
+		http://localhost/login?user=zhang3&passwd=123456&age=12&sex=man
+		去掉协议、去掉域名/IP、去掉端口、去掉?和它后边的内容
+	对于请求行处理指令
+		POST /upload/UploadAction HTTP/1.1 
+		GET /?username=tom&phone=123 HTTP/1.1
+		如果是post, 处理指令就是请求行的第二部分
+		如果是get, 处理指令就是请求行的第二部分, ? 以前的内容
+http协议请求消息的数据格式
+	Get方式提交数据
+		第1行: 请求行
+		第2-9行: 请求头(键值对) 第10行: 空行
+		get方式提交数据, 没有第四部分, 提交的数据在请求行的第二部分, 提交的数据会全部显示在地址栏中
+	Post方式提交数据
+		第1行: 请求行
+		第2-12行: 请求头 (键值对) 
+		第13行: 空行
+		第14行: 提交的数据
+======================================================================
+CGI通用网关接口
+	描述了客户端和服务器程序之间传输数据的一种标准，
+	可以让一个客户端，从网页浏览器向执行在网络服务器上的程序请求数据
+	在服务器端CGI进程会被频繁的创建销毁，造成服务器开销大, 效率低
+	CGI处理方式
+		用户通过浏览器访问服务器, 发送了一个请求
+		服务器接收数据, 对接收的数据进行解析
+		nginx对于一些登录数据不知道如何处理, nginx将数据发送给了cgi程序
+			服务器端会创建一个cgi进程
+		CGI进程执行
+			加载配置, 如果有需求加载配置文件获取数据
+			连接其他服务器: 比如数据库
+			逻辑处理
+			得到结果, 将结果发送给服务器
+			退出
+		服务器将cgi处理结果发送给客户端
+fastCGI快速通用网关接口
+	FastCGI致力于减少Web服务器与CGI程式之间互动的开销，从而使服务器可以同时处理更多的Web请求
+	fastCGI处理方式
+		用户通过浏览器访问服务器, 发送了一个请求
+		服务器接收数据, 对接收的数据进行解析
+		nginx对于一些登录数据不知道如何处理, nginx将数据发送给了fastcgi程序
+			通过本地套接字或网络通信的方式
+		通过一个fastCGI进程管理器启动fastCGI程序启动			
+			加载配置：可选
+			连接服务器：数据库
+			循环
+				服务器有请求，则处理
+				将处理结果发送给服务器
+					本地套接字/网络通信
+				没有请求，则阻塞
+		服务器将fastCGI的处理结果发送给客户端
+======================================================================
+fastCGI安装
+	./configure 
+	make 
+		- fcgio.cpp:50:14: error: 'EOF' was not declared in this scope 
+		- 没有包含对应的头文件:stdio.h 
+	make install
+spawn-fcgi安装(进程管理器)
+	./configure 
+	make 
+	make install
+fastCGI部署
+	fastCGI的配置文件位置：/usr/local/nginx/conf
+	这个文件中定义了一些http通信的时候用到环境变量 
+	fastCGI的部署需要修改nginx的配置文件nginx.conf
+	部署方式：
+	location /login { 
+		fastcgi_pass 地址信息:端口;	--转发这个数据, fastCGI进程
+		include fastcgi.conf;
+	}
+	地址信息: localhost/127.0.0.1/服务器IP 
+	端口: 找一个空闲的没有被占用的端口即可
+======================================================================
+spawn-fcgi启动
+	spawn-fcgi -a IP地址 -p 端口 -f fastcgi可执行程序
+	--IP地址: 应该和nginx的 fastcgi_pass 配置项对应
+	--端口: 应该和nginx的 fastcgi_pass 中的端口一致
+	--fastcgi可执行程序：自己编写
+fastcgi可执行程序
+	要包含的头文件：#include "fcgi_stdio.h"
+	FCGI_Accept()是一个阻塞函数, nginx给fastcgi程序发送数据的时候解除阻塞
+	将数字类型的字符串转换整形数
+		long int strtol(const char *nptr, char **endptr, int base); 
+		--参数nptr: 要转换的数字类型字符串 "123", "0x12", "0776" 
+		--参数endptr: 测试时候使用, 一般指定为NULL 
+		--参数base: 进制的指定
+	数据回发的时候, 需要告诉nginx处理结果的格式(假设是html格式)
+		printf("Content-type: text/html\r\n"); 
+		printf("<html>处理结果</html>");
+======================================================================
+fastCGI环境变量 - fastcgi.conf
+	QUERY_STRING 	请求的参数;如?app=123
+	REQUEST_METHOD 	请求的动作(GET,POST)
+	CONTENT_TYPE 	请求头中的Content-Type字段
+	CONTENT_LENGTH 	请求头中的Content-length字段(Post中数据块的长度)
+======================================================================
