@@ -43,15 +43,6 @@ login::login(QWidget *parent) :
         this->show();
     });
 
-//测试用
-#if 1
-    ui->log_address_server->setText("81.70.28.177");
-    ui->log_port_server->setText("80");
-    ui->log_usr->setText("test");
-    ui->log_pwd->setText("test");
-#endif
-
-
 }
 
 login::~login()
