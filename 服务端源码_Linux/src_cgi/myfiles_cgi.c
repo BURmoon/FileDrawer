@@ -71,7 +71,7 @@ int main()
         char *contentLength = getenv("CONTENT_LENGTH");
         int len;
 
-        printf("Content-type: text/html\r\n\r\n");
+        printf("Content-type: text/plain\r\n");
 
         if( contentLength == NULL )
         {
