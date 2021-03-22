@@ -59,7 +59,7 @@ int main()
         long len;
         int ret = 0;
 
-        printf("Content-type: text/html\r\n\r\n");
+        printf("Content-type: text/plain\r\n");
 
         if( contentLength == NULL )
         {
