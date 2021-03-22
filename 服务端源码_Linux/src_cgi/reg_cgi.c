@@ -46,7 +46,7 @@ int main()
 		//获取环境变量 CONTENT_LENGTH 的值
 		char* contentLength = getenv("CONTENT_LENGTH");
 
-		printf("Content-type: text/html\r\n\r\n");
+		printf("Content-type: text/plain\r\n");
 
 		//获取消息实体的长度
 		if(contentLength == NULL)
